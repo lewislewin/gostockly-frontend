@@ -1,18 +1,16 @@
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // Define public routes
+  // List of public routes
   const publicRoutes = ['/login', '/register'];
-
-  // Check if the current route is public
-  const isPublicRoute = publicRoutes.some((route) =>
-    event.url.pathname.startsWith(route)
-  );
 
   // Retrieve the auth token from cookies
   const token = event.cookies.get('auth_token');
 
-  // Redirect unauthenticated users to /login
+  // Check if the current route is public
+  const isPublicRoute = publicRoutes.includes(event.url.pathname);
+
+  // Redirect unauthenticated users away from non-public routes
   if (!isPublicRoute && !token) {
     return new Response(null, {
       status: 303,
@@ -20,9 +18,17 @@ export const handle: Handle = async ({ event, resolve }) => {
     });
   }
 
-  // Attach token to locals for use in API requests
+  // Redirect authenticated users away from public routes
+  if (isPublicRoute && token) {
+    return new Response(null, {
+      status: 303,
+      headers: { Location: '/' }
+    });
+  }
+
+  // Attach the token to `event.locals` for downstream usage
   event.locals.token = token;
 
-  // Process the request
+  // Process the request as usual
   return resolve(event);
 };
