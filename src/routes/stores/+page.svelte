@@ -1,40 +1,53 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api } from '$lib/api'; // Use the `api` helper function
+	import { api } from '$lib/api';
 
-	let stores = []; // Initialise stores as an empty array
-	let error: string | null = null; // Optional: Handle errors
+	let stores = [];
+	let error: string | null = null;
+	let loading = true; // Loading state
 
-	// Fetch stores on component mount
 	onMount(async () => {
 		try {
-			// Use the `api` helper function for the request
 			const storesResponse = await api('/api/stores', {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
-
-			// Update the stores with the response
-			stores = storesResponse; // `api` already returns JSON
+			stores = storesResponse;
 		} catch (err) {
-			// Handle and display errors
 			error = err.message || 'An unexpected error occurred.';
 			console.error('Error fetching stores:', err);
+		} finally {
+			loading = false; // End loading state
 		}
 	});
 </script>
 
-<h1>Your Stores</h1>
+<div class="min-h-screen bg-gray-50 p-6">
+	<h1 class="text-3xl font-bold text-gray-800 mb-4">Your Stores</h1>
 
-<!-- Display error or fallback messages -->
-{#if error}
-	<p style="color: red;">Error: {error}</p>
-{:else if stores.length === 0}
-	<p>No stores available.</p>
-{:else}
-	<ul>
-		{#each stores as store}
-			<li><a href={`/stores/${store.id}`}>{store.name || store.id}</a></li>
-		{/each}
-	</ul>
-{/if}
+	<!-- Display loading state -->
+	{#if loading}
+		<p class="text-gray-600">Loading stores...</p>
+
+	<!-- Display error or fallback messages -->
+	{:else if error}
+		<p class="text-red-600 font-semibold">Error: {error}</p>
+	{:else if stores.length === 0}
+		<p class="text-gray-600 italic">No stores available. Add your first store to get started!</p>
+	{:else}
+		<ul class="space-y-3">
+			{#each stores as store}
+				<li>
+					<a
+						href={`/stores/${store.id}`}
+						class="block bg-white rounded-lg shadow-md hover:shadow-lg transition duration-200 p-4 border border-gray-200"
+					>
+						<p class="font-semibold text-gray-700">
+							{store.shopify_store_stub || `Store ID: ${store.id}`}
+						</p>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</div>
