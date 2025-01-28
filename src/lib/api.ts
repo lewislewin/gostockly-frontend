@@ -1,27 +1,26 @@
-export const api = async (
-    endpoint: string,
-    method: string,
-    body?: Record<string, any>,
-    token?: string
-) => {
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-    };
-
+export async function api(endpoint: string, options: RequestInit = {}) {
+    const baseUrl = 'http://localhost:8080'; // Backend URL
+    const headers = new Headers(options.headers);
+  
+    // Attach server-side or client-side token
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') // Client-side
+        : process.env.TOKEN; // Server-side or locals
+  
     if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      headers.set('Authorization', `Bearer ${token}`);
     }
-
-    const response = await fetch(`http://localhost:8080${endpoint}`, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined
-    });
-
+  
+    const requestOptions: RequestInit = {
+      ...options,
+      headers
+    };
+  
+    const response = await fetch(`${baseUrl}${endpoint}`, requestOptions);
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'An error occurred');
+      throw new Error(`API error: ${response.statusText}`);
     }
-
     return response.json();
-};
+  }
+  

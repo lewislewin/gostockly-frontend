@@ -1,38 +1,40 @@
-<script>
-    let stores = [];
-    let error = '';
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { api } from '$lib/api'; // Use the `api` helper function
 
-    async function fetchStores() {
-        try {
-            const response = await fetch('/api/stores');
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || 'Failed to fetch stores');
-            }
+	let stores = []; // Initialise stores as an empty array
+	let error: string | null = null; // Optional: Handle errors
 
-            stores = await response.json();
-        } catch (err) {
-            error = err.message;
-        }
-    }
+	// Fetch stores on component mount
+	onMount(async () => {
+		try {
+			// Use the `api` helper function for the request
+			const storesResponse = await api('/api/stores', {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' }
+			});
 
-    fetchStores();
+			// Update the stores with the response
+			stores = storesResponse; // `api` already returns JSON
+		} catch (err) {
+			// Handle and display errors
+			error = err.message || 'An unexpected error occurred.';
+			console.error('Error fetching stores:', err);
+		}
+	});
 </script>
 
-<h1>List of Stores</h1>
+<h1>Your Stores</h1>
 
+<!-- Display error or fallback messages -->
 {#if error}
-<p style="color: red;">{error}</p>
-{/if}
-
-{#if stores.length > 0}
-<ul>
-    {#each stores as store}
-    <li>
-        <strong>{store.shopify_store_stub}</strong> (Location ID: {store.location_id})
-    </li>
-    {/each}
-</ul>
+	<p style="color: red;">Error: {error}</p>
+{:else if stores.length === 0}
+	<p>No stores available.</p>
 {:else}
-<p>No stores found.</p>
+	<ul>
+		{#each stores as store}
+			<li><a href={`/stores/${store.id}`}>{store.name || store.id}</a></li>
+		{/each}
+	</ul>
 {/if}
