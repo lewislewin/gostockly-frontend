@@ -24,7 +24,7 @@
 			// Ensure token is stored before navigating
 			await new Promise((resolve) => setTimeout(resolve, 100)) // Short delay to ensure cookie is set
 
-			goto('/stores') // Redirect after successful login
+			goto('/') // Redirect after successful login
 		} catch (err) {
 			error = err.message || 'Invalid email or password. Please try again.'
 			console.error('Error logging in:', err)
