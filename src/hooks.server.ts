@@ -1,34 +1,39 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit'
+import { decodeJwt } from 'jose' // Install with `npm install jose`
+
+const PUBLIC_ROUTES = ['/login', '/register']
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // List of public routes
-  const publicRoutes = ['/login', '/register'];
+    const token = event.cookies.get('auth_token')
+    const isPublicRoute = PUBLIC_ROUTES.includes(event.url.pathname)
 
-  // Retrieve the auth token from cookies
-  const token = event.cookies.get('auth_token');
+    if (token) {
+        try {
+            const decoded = decodeJwt(token) // Decodes without verifying the signature
 
-  // Check if the current route is public
-  const isPublicRoute = publicRoutes.includes(event.url.pathname);
+            if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+                console.warn('Token expired')
+                event.cookies.delete('auth_token', { path: '/' })
+                return new Response(null, { status: 303, headers: { Location: '/login' } })
+            }
 
-  // Redirect unauthenticated users away from non-public routes
-  if (!isPublicRoute && !token) {
-    return new Response(null, {
-      status: 303,
-      headers: { Location: '/login' }
-    });
-  }
+            event.locals.user = decoded // Attach decoded user info
+        } catch (error) {
+            console.error('Invalid JWT format:', error)
+            event.cookies.delete('auth_token', { path: '/' })
+            return new Response(null, { status: 303, headers: { Location: '/login' } })
+        }
+    }
 
-  // Redirect authenticated users away from public routes
-  if (isPublicRoute && token) {
-    return new Response(null, {
-      status: 303,
-      headers: { Location: '/' }
-    });
-  }
+    // Redirect unauthenticated users away from protected routes
+    if (!isPublicRoute && !token) {
+        return new Response(null, { status: 303, headers: { Location: '/login' } })
+    }
 
-  // Attach the token to `event.locals` for downstream usage
-  event.locals.token = token;
+    // Redirect authenticated users away from login/register pages
+    if (isPublicRoute && token) {
+        return new Response(null, { status: 303, headers: { Location: '/' } })
+    }
 
-  // Process the request as usual
-  return resolve(event);
-};
+    return resolve(event)
+}
