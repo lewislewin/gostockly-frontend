@@ -29,7 +29,7 @@
 				headers: { 'Content-Type': 'application/json' },
 			});
 
-			goto('/stores');
+			goto('/stockgroups');
 		} catch (err) {
 			error = err.message || 'Failed to create the store. Please try again.';
 			console.error('Error creating store:', err);

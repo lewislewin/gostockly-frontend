@@ -24,9 +24,7 @@
 		<nav class="p-4 space-y-2">
 			<a href="/" class="block py-2 px-4 rounded hover:bg-gray-200">Dashboard</a>
 			<a href="/stores" class="block py-2 px-4 rounded hover:bg-gray-200">Stores</a>
-			<a href="/stores/create" class="block py-2 px-4 rounded hover:bg-gray-200">Create Store</a>
-			<a href="/stockgroup" class="block py-2 px-4 rounded hover:bg-gray-200">Stock Groups</a>
-			<a href="/stockgroup/create" class="block py-2 px-4 rounded hover:bg-gray-200">Create Stock Group</a>
+			<a href="/stockgroups" class="block py-2 px-4 rounded hover:bg-gray-200">Stock Groups</a>
 		</nav>
 	</aside>
 
