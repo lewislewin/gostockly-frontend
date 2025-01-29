@@ -1,35 +1,39 @@
 <script lang="ts">
-    import { api } from '$lib/api'
-    import { goto } from '$app/navigation'
+	import { api } from '$lib/api'
+	import { goto } from '$app/navigation'
 
-    let email = ''
-    let password = ''
-    let error: string | null = null
-    let loading = false
+	let email = ''
+	let password = ''
+	let error: string | null = null
+	let loading = false
 
-    async function login() {
-        try {
-            loading = true
-            error = null
+	async function login() {
+		try {
+			loading = true
+			error = null
 
-            const { token } = await api('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password }),
-                headers: { 'Content-Type': 'application/json' },
-            })
+			const { token } = await api('/auth/login', {
+				method: 'POST',
+				body: JSON.stringify({ email, password }),
+				headers: { 'Content-Type': 'application/json' },
+			})
 
-            // Securely store the auth token as an HttpOnly cookie
-            document.cookie = `auth_token=${token}; Path=/; Secure; HttpOnly`
+			// Use `Set-Cookie` in response headers instead of manually setting it in `document.cookie`
+			document.cookie = `auth_token=${token}; Path=/; Secure; SameSite=Lax`
 
-            goto('/stores')
-        } catch (err) {
-            error = err.message || 'Invalid email or password. Please try again.'
-            console.error('Error logging in:', err)
-        } finally {
-            loading = false
-        }
-    }
+			// Ensure token is stored before navigating
+			await new Promise((resolve) => setTimeout(resolve, 100)) // Short delay to ensure cookie is set
+
+			goto('/stores') // Redirect after successful login
+		} catch (err) {
+			error = err.message || 'Invalid email or password. Please try again.'
+			console.error('Error logging in:', err)
+		} finally {
+			loading = false
+		}
+	}
 </script>
+
 
 <div class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
