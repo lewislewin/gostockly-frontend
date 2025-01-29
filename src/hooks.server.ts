@@ -1,5 +1,5 @@
 import type { Handle } from '@sveltejs/kit'
-import { decodeJwt } from 'jose' // Install with `npm install jose`
+import { decodeJwt } from 'jose'
 
 const PUBLIC_ROUTES = ['/login', '/register']
 
@@ -9,7 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     if (token) {
         try {
-            const decoded = decodeJwt(token) // Decodes without verifying the signature
+            const decoded = decodeJwt(token)
 
             if (decoded.exp && decoded.exp * 1000 < Date.now()) {
                 console.warn('Token expired')
@@ -17,7 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                 return new Response(null, { status: 303, headers: { Location: '/login' } })
             }
 
-            event.locals.user = decoded // Attach decoded user info
+            event.locals.user = decoded
         } catch (error) {
             console.error('Invalid JWT format:', error)
             event.cookies.delete('auth_token', { path: '/' })
@@ -25,12 +25,10 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
     }
 
-    // Redirect unauthenticated users away from protected routes
     if (!isPublicRoute && !token) {
         return new Response(null, { status: 303, headers: { Location: '/login' } })
     }
 
-    // Redirect authenticated users away from login/register pages
     if (isPublicRoute && token) {
         return new Response(null, { status: 303, headers: { Location: '/' } })
     }

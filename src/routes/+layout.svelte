@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
+	import '../app.css'
 	let { children } = $props()
 
 	async function logout() {
@@ -7,6 +8,12 @@
 		goto('/login')
 	}
 </script>
+
+<svelte:head>
+	<title>
+		GoStockly
+	</title>
+</svelte:head>
 
 <div class="flex h-screen bg-gray-100">
 	<!-- Sidebar -->
