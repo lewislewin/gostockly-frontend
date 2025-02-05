@@ -1,38 +1,37 @@
-# sv
+---
+title: "Receipt Splitter"
+date: "2025-02-04"
+description: "AI-powered receipt splitting"
+github: "https://github.com/lewislewin/receipt-splitter"
+---
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+# Receipt Splitter
 
-## Creating a project
+## What is it?
 
-If you're seeing this, you've probably already done this step. Congrats!
+Splitting a bill at a restaurant or pub is a pain. **Who owes what? How do we fairly divide shared items?**  
+The **Receipt Splitter App** solves this with a **fully automated, AI-powered system**.
 
-```bash
-# create a new project in the current directory
-npx sv create
+## How It Works
 
-# create a new project in my-app
-npx sv create my-app
-```
+1. **Upload a Receipt** 📸 – The person who paid uploads a photo of the receipt.
+2. **AI Parses the Receipt** 🤖 – The app uses **Google OCR** to extract text from the image and then sends it to **OpenAI** to convert it into a structured JSON object, identifying items, prices, tax, and deductions.
+3. **Share the Link** 🔗 – The uploader sends a link to everyone at the table, providing access to a digital version of the receipt.
+4. **Select Your Items** 👥 – Each person selects what they ordered.
+5. **Monzo Links Generated** 💳 – Instantly generate a Monzo payment link for seamless reimbursement.
 
-## Developing
+## Why It's Useful
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- **No more manual calculations** – AI handles all the math.  
+- **Fair & Transparent** – Everyone picks their items before paying.  
+- **Works with any receipt** – OCR ensures accuracy.  
+- **Monzo Integration** – Send payments with one tap.
 
-```bash
-npm run dev
+## The Tech Behind It
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- **Frontend:** Built with **SvelteKit** for a smooth user experience.
+- **Backend:** Initially written in **Django**, but Go provided better **performance and simplicity**.
+- **AI Parsing:** Utilizes **Google OCR** to extract text from receipt images, which is then processed by **OpenAI** to convert it into a structured JSON object.
+- **Payments:** Generates **Monzo.me links** dynamically.
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+*Note: The project's source code is available on GitHub: [lewislewin/receipt-splitter](https://github.com/lewislewin/receipt-splitter) and [lewislewin/receipt-splitter-backend](https://github.com/lewislewin/receipt-splitter-backend).*
